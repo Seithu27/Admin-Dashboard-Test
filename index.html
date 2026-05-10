@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin System - Automation Practice</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { font-family: 'Poppins', sans-serif; }
+        .sidebar-link:hover { background: #4f46e5; color: white; }
+        .sidebar-active { background: #4f46e5; color: white; }
+    </style>
+</head>
+<body class="bg-gray-50 flex">
+
+    <aside class="w-64 h-screen bg-white border-r border-gray-200 flex flex-col sticky top-0 hidden md:flex">
+        <div class="p-6">
+            <h1 class="text-xl font-bold text-indigo-600 tracking-tight">ADMIN<span class="text-gray-800">PRO</span></h1>
+        </div>
+        <nav class="flex-1 px-4 space-y-2">
+            <a href="#" class="sidebar-link sidebar-active flex items-center gap-3 p-3 rounded-xl transition">
+                <i class="fas fa-users"></i> <span>User Management</span>
+            </a>
+            <a href="#" class="sidebar-link flex items-center gap-3 p-3 rounded-xl text-gray-500 transition">
+                <i class="fas fa-shopping-bag"></i> <span>Orders</span>
+            </a>
+            <a href="#" class="sidebar-link flex items-center gap-3 p-3 rounded-xl text-gray-500 transition">
+                <i class="fas fa-chart-line"></i> <span>Analytics</span>
+            </a>
+            <a href="#" class="sidebar-link flex items-center gap-3 p-3 rounded-xl text-gray-500 transition">
+                <i class="fas fa-cog"></i> <span>Settings</span>
+            </a>
+        </nav>
+        <div class="p-6 border-t">
+            <button class="flex items-center gap-3 text-red-500 font-medium hover:underline">
+                <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
+            </button>
+        </div>
+    </aside>
+
+    <main class="flex-1 p-8">
+        <header class="flex justify-between items-center mb-10">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-800" id="page-title">User Management</h2>
+                <p class="text-sm text-gray-500">Manage your system users and their roles.</p>
+            </div>
+            <button id="add-user-btn" class="bg-indigo-600 text-white px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition">
+                <i class="fas fa-plus mr-2"></i> Add New User
+            </button>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                <p class="text-gray-400 text-sm">Total Users</p>
+                <h3 class="text-3xl font-bold text-gray-800" id="total-users-count">4</h3>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                <p class="text-gray-400 text-sm">Active Now</p>
+                <h3 class="text-3xl font-bold text-green-500">2</h3>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                <p class="text-gray-400 text-sm">System Health</p>
+                <h3 class="text-3xl font-bold text-indigo-600">98%</h3>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <table class="w-full text-left border-collapse" id="user-table">
+                <thead class="bg-gray-50 border-b border-gray-100">
+                    <tr>
+                        <th class="p-4 font-semibold text-gray-600">Name</th>
+                        <th class="p-4 font-semibold text-gray-600">Email</th>
+                        <th class="p-4 font-semibold text-gray-600">Role</th>
+                        <th class="p-4 font-semibold text-gray-600">Status</th>
+                        <th class="p-4 font-semibold text-gray-600 text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="user-table-body">
+                    </tbody>
+            </table>
+        </div>
+    </main>
+
+    <div id="user-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+        <div class="bg-white p-8 rounded-2xl w-full max-w-md shadow-2xl">
+            <h3 class="text-xl font-bold mb-6">Add New User</h3>
+            <div class="space-y-4">
+                <input type="text" id="new-name" placeholder="Full Name" class="w-full p-3 bg-gray-50 rounded-xl border focus:outline-none focus:ring-2 focus:ring-indigo-400">
+                <input type="email" id="new-email" placeholder="Email Address" class="w-full p-3 bg-gray-50 rounded-xl border focus:outline-none focus:ring-2 focus:ring-indigo-400">
+                <select id="new-role" class="w-full p-3 bg-gray-50 rounded-xl border focus:outline-none focus:ring-2 focus:ring-indigo-400">
+                    <option value="Admin">Admin</option>
+                    <option value="Editor">Editor</option>
+                    <option value="Viewer">Viewer</option>
+                </select>
+                <div class="flex gap-4 mt-6">
+                    <button id="close-modal" class="flex-1 py-3 text-gray-500 font-bold hover:bg-gray-100 rounded-xl">Cancel</button>
+                    <button id="save-user" class="flex-1 py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700">Save User</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let users = [
+            { name: "Kaung Si Thu", email: "kaung@example.com", role: "Admin", status: "Active" },
+            { name: "Aung Aung", email: "aung@example.com", role: "Editor", status: "Inactive" },
+            { name: "Su Su", email: "susu@example.com", role: "Viewer", status: "Active" },
+            { name: "Ko Ko", email: "koko@example.com", role: "Editor", status: "Active" }
+        ];
+
+        const tableBody = document.getElementById('user-table-body');
+        const modal = document.getElementById('user-modal');
+
+        function renderTable() {
+            tableBody.innerHTML = users.map((u, i) => `
+                <tr class="border-b border-gray-50 hover:bg-gray-50 transition user-row">
+                    <td class="p-4 font-medium text-gray-800">${u.name}</td>
+                    <td class="p-4 text-gray-500">${u.email}</td>
+                    <td class="p-4 text-gray-500">${u.role}</td>
+                    <td class="p-4">
+                        <span class="px-3 py-1 rounded-full text-xs font-bold ${u.status === 'Active' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}">
+                            ${u.status}
+                        </span>
+                    </td>
+                    <td class="p-4 text-center">
+                        <button onclick="deleteUser(${i})" class="text-gray-300 hover:text-red-500 transition mx-2 delete-btn" data-name="${u.name}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+            document.getElementById('total-users-count').innerText = users.length;
+        }
+
+        function deleteUser(index) {
+            users.splice(index, 1);
+            renderTable();
+        }
+
+        document.getElementById('add-user-btn').onclick = () => modal.classList.replace('hidden', 'flex');
+        document.getElementById('close-modal').onclick = () => modal.classList.replace('flex', 'hidden');
+
+        document.getElementById('save-user').onclick = () => {
+            const name = document.getElementById('new-name').value;
+            const email = document.getElementById('new-email').value;
+            const role = document.getElementById('new-role').value;
+
+            if(name && email) {
+                users.push({ name, email, role, status: "Active" });
+                renderTable();
+                modal.classList.replace('flex', 'hidden');
+                document.getElementById('new-name').value = '';
+                document.getElementById('new-email').value = '';
+            }
+        };
+
+        renderTable();
+    </script>
+</body>
+</html>
